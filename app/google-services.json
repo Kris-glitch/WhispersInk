@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "760790868773",
+    "project_id": "whispersink-9985c",
+    "storage_bucket": "whispersink-9985c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:760790868773:android:9cb0aff6d4d725bb2ff0cc",
+        "android_client_info": {
+          "package_name": "com.libraryrapp.whispersink"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2vcmOTCUB1m5BAQycEqQpjRuSh0bn2m0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
