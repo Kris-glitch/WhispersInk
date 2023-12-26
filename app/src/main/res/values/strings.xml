@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">WhispersInk</string>
+    <string name="app_title">Whispers Ink</string>
+    <string name="app_slogan">"Where every word finds its echo"</string>
+    <string name="splash">Splash image</string>
+    <string name="create_acct">Create a new account</string>
+    <string name="login">Log in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="new_user">New user?</string>
 </resources>

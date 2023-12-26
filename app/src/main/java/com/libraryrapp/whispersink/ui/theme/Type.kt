@@ -10,10 +10,10 @@ import com.libraryrapp.whispersink.R
 
 val Typography = Typography(
     headlineMedium = TextStyle(
-        fontFamily = FontFamily(Font(R.font.barlow_regular)),
-        fontWeight = FontWeight.Normal,
-        fontSize = 36.sp,
-        lineHeight = 38.sp,
+        fontFamily = FontFamily(Font(R.font.barlow_bold)),
+        fontWeight = FontWeight.Bold,
+        fontSize = 42.sp,
+        lineHeight = 42.sp,
         letterSpacing = 0.sp
     ),
     headlineSmall = TextStyle(
