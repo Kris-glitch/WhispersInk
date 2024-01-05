@@ -26,8 +26,8 @@ val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = FontFamily(Font(R.font.barlow_semi_bold)),
         fontWeight = FontWeight.Medium,
-        fontSize = 24.sp,
-        lineHeight = 28.sp,
+        fontSize = 22.sp,
+        lineHeight = 22.sp,
         letterSpacing = 0.sp
     ),
     titleSmall = TextStyle(
@@ -46,7 +46,7 @@ val Typography = Typography(
     ),
     bodySmall = TextStyle(
         fontFamily = FontFamily(Font(R.font.barlow_light)),
-        fontWeight = FontWeight.Light,
+        fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.sp

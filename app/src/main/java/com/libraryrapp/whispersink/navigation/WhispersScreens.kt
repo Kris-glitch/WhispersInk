@@ -5,8 +5,8 @@ enum class WhispersScreens {
     LoginScreen,
     CreateAccountScreen,
     HomeScreen,
-    SearchScreen,
     BookDetailsScreen,
+    SettingsScreen,
     UpdateScreen,
     RatingsScreen;
 
@@ -17,8 +17,8 @@ enum class WhispersScreens {
             LoginScreen.name -> LoginScreen
             CreateAccountScreen.name -> CreateAccountScreen
             HomeScreen.name -> HomeScreen
-            SearchScreen.name -> SearchScreen
             BookDetailsScreen.name -> BookDetailsScreen
+            SettingsScreen.name -> SettingsScreen
             UpdateScreen.name -> UpdateScreen
             RatingsScreen.name -> RatingsScreen
             null -> HomeScreen

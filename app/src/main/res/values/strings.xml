@@ -7,4 +7,14 @@
     <string name="login">Log in</string>
     <string name="sign_up">Sign up</string>
     <string name="new_user">New user?</string>
+    <string name="existing_user">Existing user?</string>
+    <string name="back">Go back</string>
+    <string name="books_catalogue">Books Catalogue</string>
+    <string name="search">Search</string>
+    <string name="my_list">Reading</string>
+    <string name="newest_list">New</string>
+    <string name="free_list">Free</string>
+    <string name="paid_list">Paid</string>
+    <string name="book_cover">Book cover image</string>
+    <string name="book_rating">Book rating</string>
 </resources>

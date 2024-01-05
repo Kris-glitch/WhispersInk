@@ -1,7 +1,6 @@
 package com.libraryrapp.whispersink.screens
 
 import android.view.animation.OvershootInterpolator
-import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.libraryrapp.whispersink.R
 import com.libraryrapp.whispersink.navigation.WhispersScreens
+import com.libraryrapp.whispersink.network.FirebaseUserUtils
 import kotlinx.coroutines.delay
 
 @Composable
@@ -44,8 +44,11 @@ fun WhispersSplashScreen(
             )
         delay(3000L)
 
-        //TODO: Check for logged in user
-        navController.navigate(WhispersScreens.LoginScreen.name)
+        if (FirebaseUserUtils.isCurrentUserLoggedIn()) {
+            navController.navigate(WhispersScreens.HomeScreen.name)
+        } else {
+            navController.navigate(WhispersScreens.LoginScreen.name)
+        }
     }
 
     Surface(
@@ -67,8 +70,8 @@ fun WhispersSplashScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
             Image(
-                modifier = Modifier.size(500.dp),
-                painter = painterResource(R.drawable.splash),
+                modifier = Modifier.size(600.dp),
+                painter = painterResource(R.drawable.splashh),
                 contentDescription = stringResource(R.string.splash)
             )
             Text(

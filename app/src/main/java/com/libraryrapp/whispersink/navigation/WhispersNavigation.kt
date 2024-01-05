@@ -8,7 +8,7 @@ import com.libraryrapp.whispersink.screens.WhispersSplashScreen
 import com.libraryrapp.whispersink.screens.home.HomeScreen
 import com.libraryrapp.whispersink.screens.login.LoginScreen
 import com.libraryrapp.whispersink.screens.rating.RatingsScreen
-import com.libraryrapp.whispersink.screens.search.SearchScreen
+import com.libraryrapp.whispersink.screens.settings.SettingsScreen
 
 @Composable
 fun WhispersNavigation() {
@@ -32,10 +32,10 @@ fun WhispersNavigation() {
         composable(WhispersScreens.HomeScreen.name) {
             HomeScreen(navController = navController)
         }
-
-        composable(WhispersScreens.SearchScreen.name) {
-            SearchScreen(navController = navController)
+        composable(WhispersScreens.SettingsScreen.name) {
+            SettingsScreen(navController = navController)
         }
+
 
     }
 
