@@ -1,7 +1,5 @@
 package com.libraryrapp.whispersink.model
 
-import com.google.firebase.Timestamp
-
 data class MyBook(
     var title: String? = null,
     var authors: List<String>? = null,
@@ -11,8 +9,9 @@ data class MyBook(
     var rating: Double? = null,
     var description: String? = null,
     var pageCount: String? = null,
-    var startedReading: Timestamp? = null,
-    var finishedReading: Timestamp? = null,
+    var startedReading: Boolean? = null,
+    var finishedReading: Boolean? = null,
     var userId: String? = null,
-    var googleBookId: String? = null
+    var googleBookId: String,
+    var inMyList: Boolean? = null
 )

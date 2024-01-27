@@ -4,8 +4,6 @@ import android.view.LayoutInflater
 import android.widget.RatingBar
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,15 +16,22 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -68,14 +73,28 @@ fun BookDetailsScreen(
 
     val book = uiState.data
 
+    var bookSavedText by remember { mutableIntStateOf(R.string.saved_fail) }
+
     if (book != null) {
 
         Content(
             book = book,
             fromList = fromList,
+            bookSavedText,
             openSettings = { navController.navigate(WhispersScreens.SettingsScreen.route) },
-            goBackToHome = { navController.navigate(WhispersScreens.HomeScreen.route) }
+            goBackToHome = { navController.navigate(WhispersScreens.HomeScreen.route) },
+            saveBook = {
+
+                if (detailsViewModel.saveBook()) {
+                    bookSavedText = R.string.saved_success
+                }
+
+            },
+            readBook = {
+                detailsViewModel.startReadingBook()
+            }
         )
+
 
     } else if (error != null) {
 
@@ -100,8 +119,11 @@ fun BookDetailsScreen(
 fun Content(
     book: MyBook,
     fromList: Boolean,
+    bookSavedText: Int,
     openSettings: () -> Unit,
-    goBackToHome: () -> Unit
+    goBackToHome: () -> Unit,
+    saveBook: () -> Unit,
+    readBook: () -> Unit
 ) {
 
     val authors = book.authors
@@ -130,6 +152,10 @@ fun Content(
 
     if (fromList) {
         btnText = stringResource(id = R.string.delete)
+    }
+
+    var savedClicked by remember {
+        mutableStateOf(false)
     }
 
     Surface(
@@ -174,8 +200,10 @@ fun Content(
                 shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp)
             ) {
 
+
                 Column(
                     modifier = Modifier
+                        .verticalScroll(rememberScrollState(), true)
                         .padding(12.dp),
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.Start
@@ -183,7 +211,7 @@ fun Content(
 
                     Spacer(
                         modifier = Modifier
-                            .fillMaxHeight(0.3f)
+                            .height(200.dp)
                     )
 
                     Text(
@@ -260,38 +288,33 @@ fun Content(
                             }
                         }
                     }
-                    Box(
+
+                    Text(
                         modifier = Modifier
-                            .height(120.dp)
-                            .scrollable(
-                                rememberScrollState(),
-                                orientation = Orientation.Vertical
-                            )
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .padding(3.dp),
-                            text = book.description
-                                ?: stringResource(id = R.string.desc_not_available),
-                            color = MaterialTheme.colorScheme.secondary,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+                            .padding(3.dp),
+                        text = book.description
+                            ?: stringResource(id = R.string.desc_not_available),
+                        color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
 
                     Row(
-                        modifier = Modifier.padding(3.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(3.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.Bottom
                     ) {
 
                         Button(
                             onClick = {
-                                //TODO: CURD
+                                saveBook()
+                                savedClicked = true
                             },
                             modifier = Modifier
-                                .padding(16.dp)
+                                .padding(3.dp)
                                 .height(50.dp),
-                            enabled = false,
+                            enabled = true,
                             shape = RoundedCornerShape(18.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
@@ -307,11 +330,11 @@ fun Content(
                         }
 
                         Button(
-                            onClick = { },
+                            onClick = { readBook() },
                             modifier = Modifier
-                                .padding(16.dp)
+                                .padding(end = 6.dp)
                                 .height(50.dp),
-                            enabled = false,
+                            enabled = true,
                             shape = RoundedCornerShape(18.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
@@ -326,6 +349,23 @@ fun Content(
                             )
                         }
                     }
+
+                    if (savedClicked) {
+
+                        Snackbar(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 6.dp),
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .padding(3.dp),
+                                text = stringResource(id = bookSavedText)
+                            )
+
+                        }
+                    }
+
                 }
             }
 

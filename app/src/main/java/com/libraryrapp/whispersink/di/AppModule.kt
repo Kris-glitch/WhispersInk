@@ -3,6 +3,7 @@ package com.libraryrapp.whispersink.di
 import com.google.firebase.firestore.FirebaseFirestore
 import com.libraryrapp.whispersink.network.BooksApi
 import com.libraryrapp.whispersink.repository.BookRepository
+import com.libraryrapp.whispersink.repository.FirebaseRepository
 import com.libraryrapp.whispersink.utils.Constants
 import dagger.Module
 import dagger.Provides
@@ -24,11 +25,11 @@ object AppModule {
         .addInterceptor(interceptor)
         .build()
 
-/*    @Singleton
+    @Singleton
     @Provides
-    fun provideFireBookRepository()
-            = FireRepository(queryBook = FirebaseFirestore.getInstance()
-        .collection("books"))*/
+    fun provideFirebaseRepository()
+            = FirebaseRepository(queryBook = FirebaseFirestore.getInstance()
+        .collection("books"))
 
     @Singleton
     @Provides

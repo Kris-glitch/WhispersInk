@@ -15,6 +15,11 @@ object FirebaseUserUtils {
     fun isCurrentUserLoggedIn(): Boolean {
         return auth.currentUser?.email.isNullOrEmpty()
     }
+
+    fun getUserId(): String? {
+        return  auth.currentUser?.uid
+    }
+
     suspend fun logInWithEmailAndPassword(email: String, password: String): Result<Unit> {
         return try {
             auth.signInWithEmailAndPassword(email, password).await()
@@ -23,6 +28,7 @@ object FirebaseUserUtils {
             Result.failure(e)
         }
     }
+
     suspend fun createUserWithEmailAndPassword(email: String, password: String): Result<Unit> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
@@ -45,7 +51,8 @@ object FirebaseUserUtils {
             userId = userId.toString(),
             displayName = displayName.toString(),
             avatarUrl = "",
-            id = null).toMap()
+            id = null
+        ).toMap()
 
         FirebaseFirestore.getInstance().collection("users")
             .add(user)
@@ -54,5 +61,7 @@ object FirebaseUserUtils {
     fun logOut() {
         auth.signOut()
     }
+
+
 
 }

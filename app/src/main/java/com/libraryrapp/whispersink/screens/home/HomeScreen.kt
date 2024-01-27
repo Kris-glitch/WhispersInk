@@ -1,5 +1,6 @@
 package com.libraryrapp.whispersink.screens.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +16,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -27,14 +31,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.libraryrapp.whispersink.components.Logo
 import com.libraryrapp.whispersink.components.WhispersTopBar
 import com.libraryrapp.whispersink.R
 import com.libraryrapp.whispersink.components.BookCard
+import com.libraryrapp.whispersink.components.FilterRadioButtons
 import com.libraryrapp.whispersink.components.TabButton
 import com.libraryrapp.whispersink.components.WhispersSearchBar
 import com.libraryrapp.whispersink.navigation.WhispersScreens
@@ -61,6 +68,14 @@ fun HomeScreen(
     }
     var paidTabColor by remember {
         mutableStateOf(Color.LightGray)
+    }
+
+    var filterVisible by remember {
+        mutableStateOf(false)
+    }
+
+    var showFilterDialog by remember {
+        mutableStateOf(false)
     }
 
 
@@ -91,7 +106,7 @@ fun HomeScreen(
 
             WhispersSearchBar(
                 modifier = Modifier.weight(1f),
-                onSearch = {book ->
+                onSearch = { book ->
                     homeViewModel.searchBooks(book)
                 }
             )
@@ -118,13 +133,17 @@ fun HomeScreen(
                             newTabColor = Color.LightGray
                             freeTabColor = Color.LightGray
                             paidTabColor = Color.LightGray
-                            //TODO: Open user reading list
+                            filterVisible = true
+
+                            homeViewModel.getBooksFromDatabase()
                         }
                         TabButton(textId = stringResource(id = R.string.newest_list), newTabColor) {
                             newTabColor = Color(0xFFE7B34D)
                             savedTabColor = Color.LightGray
                             freeTabColor = Color.LightGray
                             paidTabColor = Color.LightGray
+                            filterVisible = false
+
                             homeViewModel.refresh()
                         }
                         TabButton(textId = stringResource(id = R.string.free_list), freeTabColor) {
@@ -132,6 +151,7 @@ fun HomeScreen(
                             savedTabColor = Color.LightGray
                             newTabColor = Color.LightGray
                             paidTabColor = Color.LightGray
+                            filterVisible = false
 
                             homeViewModel.searchCategoryBooks("search", "free-ebooks")
                         }
@@ -140,8 +160,45 @@ fun HomeScreen(
                             savedTabColor = Color.LightGray
                             newTabColor = Color.LightGray
                             freeTabColor = Color.LightGray
+                            filterVisible = false
 
                             homeViewModel.searchCategoryBooks("search", "paid-ebooks")
+                        }
+                    }
+
+                    if (filterVisible) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.baseline_filter_alt_24),
+                            contentDescription = stringResource(id = R.string.filter),
+                            tint = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .align(Alignment.Start)
+                                .clickable {
+                                showFilterDialog = !showFilterDialog
+                            }
+                        )
+                        
+                        if (showFilterDialog) {
+                            Dialog(
+                                onDismissRequest = { showFilterDialog = false }
+                            ) {
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp)
+                                        .padding(18.dp),
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                                ){
+                                    FilterRadioButtons {selectedOption ->
+
+                                        homeViewModel.getSelectedOption(selectedOption, listOfBooks)
+                                        showFilterDialog = false
+                                    }
+                                }
+
+                            }
                         }
                     }
 
@@ -157,9 +214,15 @@ fun HomeScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             content = {
                                 items(items = listOfBooks) { book ->
-                                    BookCard(book = book) {bookId ->
-                                        navController.navigate("${WhispersScreens.BookDetailsScreen.route}/$bookId")
-                                    }
+                                    BookCard(
+                                        book = book,
+                                        onBookCardClicked = { bookId ->
+                                            navController.navigate("${WhispersScreens.BookDetailsScreen.route}/$bookId")
+                                        },
+                                        deleteFromList = {bookId ->
+                                            homeViewModel.deleteFromDatabase(bookId)
+                                        }
+                                        )
                                 }
 
                             })
@@ -167,7 +230,10 @@ fun HomeScreen(
 
                     } else if (error != null) {
 
-                        ErrorScreen(message = error.message ?: "Something went wrong. Please try again later") {
+                        ErrorScreen(
+                            message = error.message
+                                ?: "Something went wrong. Please try again later"
+                        ) {
                             homeViewModel.refresh()
                         }
 
@@ -175,7 +241,8 @@ fun HomeScreen(
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
-                            .fillMaxSize())
+                                .fillMaxSize()
+                        )
                         {
                             CircularProgressIndicator()
                         }
@@ -188,7 +255,6 @@ fun HomeScreen(
         }
 
     }
-
 
 
 }

@@ -30,14 +30,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -56,6 +62,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -360,27 +367,37 @@ fun BookCard(
         startedReading = null,
         finishedReading = null,
         userId = null,
-        googleBookId = "zyTCAlFPjgYC"
+        googleBookId = "zyTCAlFPjgYC",
+        inMyList = true
     ),
-    onBookCardClicked: (String) -> Unit = {}
+    onBookCardClicked: (String) -> Unit = {},
+    deleteFromList: (String) -> Unit = {}
 ) {
-    
+
     val authors = book.authors
-    
+
     var authorsString = stringResource(id = R.string.author_not_available)
-    
+
     var bookRating = stringResource(id = R.string.rating_not_available)
-        
+
     var imageFromUrl = painterResource(id = R.drawable.preview)
-    
+
+    var read by remember {
+        mutableIntStateOf(R.string.start_reading)
+    }
+
+    if (book.startedReading == true) {
+        read = R.string.continue_reading
+    }
+
     if (!book.photoUrl.isNullOrEmpty()) {
         imageFromUrl = rememberImagePainter(data = book.photoUrl)
     }
-    
+
     if (!authors.isNullOrEmpty()) {
         authorsString = authors.joinToString(separator = " , ")
     }
-    
+
     if (book.rating != null) {
         bookRating = book.rating.toString()
     }
@@ -390,97 +407,182 @@ fun BookCard(
         modifier = modifier
             .padding(12.dp)
             .fillMaxWidth()
-            .height(200.dp)
-            .clickable { onBookCardClicked(book.googleBookId.toString()) },
+            .clickable { onBookCardClicked(book.googleBookId) },
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
     ) {
-        Row(
-            modifier = modifier,
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.Top
-        ) {
-            Image(
-                modifier = modifier
-                    .fillMaxSize()
-                    .weight(0.4f)
-                    .clip(RoundedCornerShape(18.dp))
-                    .shadow(elevation = 1.dp, shape = RoundedCornerShape(18.dp)),
-                painter = imageFromUrl,
-                contentDescription = stringResource(id = R.string.book_cover),
-                contentScale = ContentScale.Crop
-            )
-
-            Column(
-                modifier = modifier
-                    .padding(8.dp)
-                    .weight(0.6f),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start
+        Column( modifier = modifier.height(200.dp)) {
+            Row(
+                modifier = modifier,
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.Top
             ) {
-                Text(
+                Image(
                     modifier = modifier
-                        .padding(3.dp),
-                    text = book.title ?: stringResource(id = R.string.title_not_available),
-                    color = MaterialTheme.colorScheme.onSecondary,
-                    style = MaterialTheme.typography.titleSmall,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 2
+                        .fillMaxSize()
+                        .weight(0.4f)
+                        .clip(RoundedCornerShape(18.dp))
+                        .shadow(elevation = 1.dp, shape = RoundedCornerShape(18.dp)),
+                    painter = imageFromUrl,
+                    contentDescription = stringResource(id = R.string.book_cover),
+                    contentScale = ContentScale.Crop
                 )
 
-                Text(
+                Column(
                     modifier = modifier
-                        .padding(3.dp),
-                    text = authorsString,
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 2
-                )
-
-                Row(
-                    modifier = modifier.padding(
-                        top = 5.dp,
-                        start = 3.dp,
-                        end = 3.dp,
-                        bottom = 3.dp
-                    ),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(8.dp)
+                        .weight(0.6f),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Icon(
-                        modifier = modifier.size(10.dp),
-                        tint = MaterialTheme.colorScheme.primary,
-                        imageVector = Icons.Default.Star,
-                        contentDescription = stringResource(
-                            id = R.string.book_rating
-                        )
-                    )
                     Text(
                         modifier = modifier
-                            .padding(start = 3.dp),
-                        text = bookRating,
+                            .padding(3.dp),
+                        text = book.title ?: stringResource(id = R.string.title_not_available),
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.titleSmall,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2
+                    )
+
+                    Text(
+                        modifier = modifier
+                            .padding(3.dp),
+                        text = authorsString,
                         color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodyMedium,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2
+                    )
+
+                    Row(
+                        modifier = modifier.padding(
+                            top = 5.dp,
+                            start = 3.dp,
+                            end = 3.dp,
+                            bottom = 3.dp
+                        ),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            modifier = modifier.size(10.dp),
+                            tint = MaterialTheme.colorScheme.primary,
+                            imageVector = Icons.Default.Star,
+                            contentDescription = stringResource(
+                                id = R.string.book_rating
+                            )
+                        )
+                        Text(
+                            modifier = modifier
+                                .padding(start = 3.dp),
+                            text = bookRating,
+                            color = MaterialTheme.colorScheme.secondary,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+
+                    Text(
+                        modifier = modifier
+                            .padding(top = 12.dp, start = 3.dp, end = 3.dp, bottom = 3.dp),
+                        text = book.description ?: stringResource(id = R.string.desc_not_available),
+                        color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.bodySmall,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 8
+                    )
+
+
+                }
+            }
+        }
+
+
+        if (book.inMyList == true) {
+            Row(
+                modifier = Modifier.padding(top = 6.dp)
+            ) {
+                Surface(
+                    modifier = Modifier.weight(0.5f),
+                    color = MaterialTheme.colorScheme.primary
+                ) {
+                    Text(
+                        modifier = modifier
+                            .clickable {
+                                //Read
+                            }
+                            .padding(6.dp),
+                        text = stringResource(id = read),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
                     )
                 }
 
-                Text(
-                    modifier = modifier
-                        .padding(top = 12.dp, start = 3.dp, end = 3.dp, bottom = 3.dp),
-                    text = book.description ?: stringResource(id = R.string.desc_not_available),
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.bodySmall,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 8
-                )
-
-
+                Surface(
+                    modifier = Modifier.weight(0.5f),
+                    color = Color.LightGray
+                ){
+                    Text(
+                        modifier = modifier
+                            .clickable {
+                                deleteFromList(book.googleBookId)
+                            }
+                            .padding(6.dp),
+                        text = stringResource(id = R.string.remove),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
+
     }
 }
+
+@Composable
+fun FilterRadioButtons(
+    onSelect: (Int) -> Unit
+) {
+
+    val radioOptions = listOf(R.string.reading,R.string.not_reading,R.string.finished)
+    var selectedOption by remember { mutableStateOf(R.string.reading) }
+
+    Column(
+        modifier = Modifier.padding(8.dp),
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        radioOptions.forEach { selected ->
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+
+                RadioButton(
+                    selected = (selected == selectedOption),
+                    onClick = {
+                        selectedOption = selected
+                        onSelect(selectedOption)
+                    },
+                    colors = RadioButtonDefaults.colors(
+                        selectedColor = MaterialTheme.colorScheme.primary,
+                        unselectedColor = MaterialTheme.colorScheme.secondary
+                    )
+                )
+                Text(
+                    text = stringResource(id = selected),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 8.dp),
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+        }
+
+    }
+}
+
+
+
 
 
 

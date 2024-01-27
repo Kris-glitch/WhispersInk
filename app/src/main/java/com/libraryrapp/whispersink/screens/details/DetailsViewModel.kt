@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.libraryrapp.whispersink.data.DataOrException
 import com.libraryrapp.whispersink.model.Item
 import com.libraryrapp.whispersink.model.MyBook
+import com.libraryrapp.whispersink.network.FirebaseUserUtils
 import com.libraryrapp.whispersink.repository.BookRepository
+import com.libraryrapp.whispersink.repository.FirebaseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,14 +19,16 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class DetailsViewModel @Inject constructor(private val repository: BookRepository) : ViewModel() {
+class DetailsViewModel @Inject constructor(
+    private val bookRepository: BookRepository,
+    private val firebaseRepository: FirebaseRepository
+) : ViewModel() {
 
     private var _bookUiState: MutableStateFlow<DataOrException<MyBook, Boolean, Exception>> =
         MutableStateFlow(DataOrException(null, true, Exception("")))
 
     val bookUiState: StateFlow<DataOrException<MyBook, Boolean, Exception>> =
         _bookUiState
-
 
 
     fun getBookInfo(id: String) {
@@ -39,7 +43,7 @@ class DetailsViewModel @Inject constructor(private val repository: BookRepositor
                     it.copy(loading = true)
                 }
 
-                val response = repository.getBookInfo(id).first()
+                val response = bookRepository.getBookInfo(id).first()
 
                 when (response) {
 
@@ -78,6 +82,40 @@ class DetailsViewModel @Inject constructor(private val repository: BookRepositor
         }
     }
 
+    fun saveBook(): Boolean {
+        try {
+            val book = bookUiState.value.data ?: return false
+
+            book.inMyList = true
+
+            val result = firebaseRepository.saveBookInDB(book)
+
+            return result.isSuccess
+
+        } catch (e: Exception) {
+
+            return false
+        }
+    }
+
+    fun startReadingBook() {
+        viewModelScope.launch {
+
+            val book = bookUiState.value.data
+
+            if (book != null) {
+
+                book.inMyList = true
+                book.startedReading = true
+
+                firebaseRepository.startReading(book)
+            }
+
+
+
+        }
+    }
+
     private fun mapItemToMyBook(data: Item): MyBook {
 
         val volume = data.volumeInfo
@@ -92,7 +130,8 @@ class DetailsViewModel @Inject constructor(private val repository: BookRepositor
             rating = volume.averageRating,
             description = volume.description,
             pageCount = volume.pageCount.toString(),
-            googleBookId = data.id
+            googleBookId = data.id,
+            userId = FirebaseUserUtils.getUserId()
         )
 
     }
