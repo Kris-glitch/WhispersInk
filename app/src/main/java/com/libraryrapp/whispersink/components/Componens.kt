@@ -313,6 +313,7 @@ fun WhispersTopBar(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WhispersSearchBar(
+    modifier: Modifier,
     onSearch: (String) -> Unit = {}
 ) {
     Column {
