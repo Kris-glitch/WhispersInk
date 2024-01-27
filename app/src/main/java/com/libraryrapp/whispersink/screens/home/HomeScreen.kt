@@ -1,6 +1,7 @@
 package com.libraryrapp.whispersink.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,10 +15,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.libraryrapp.whispersink.components.Logo
 import com.libraryrapp.whispersink.components.WhispersTopBar
@@ -34,11 +37,18 @@ import com.libraryrapp.whispersink.R
 import com.libraryrapp.whispersink.components.BookCard
 import com.libraryrapp.whispersink.components.TabButton
 import com.libraryrapp.whispersink.components.WhispersSearchBar
-import com.libraryrapp.whispersink.model.MyBook
 import com.libraryrapp.whispersink.navigation.WhispersScreens
+import com.libraryrapp.whispersink.screens.ErrorScreen
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    homeViewModel: HomeViewModel = hiltViewModel()
+) {
+
+    val uiState = homeViewModel.uiStateSearchBooks.collectAsState().value
+    val listOfBooks = uiState.data
+    val error = uiState.e
 
     var savedTabColor by remember {
         mutableStateOf(Color.LightGray)
@@ -52,9 +62,6 @@ fun HomeScreen(navController: NavController) {
     var paidTabColor by remember {
         mutableStateOf(Color.LightGray)
     }
-
-    var listOfBooks = emptyList<MyBook>()
-
 
 
     Surface(
@@ -76,7 +83,7 @@ fun HomeScreen(navController: NavController) {
                 title = stringResource(id = R.string.books_catalogue),
                 isHomeScreen = true,
                 onSettingsClicked = {
-                    navController.navigate(WhispersScreens.SettingsScreen.name)
+                    navController.navigate(WhispersScreens.SettingsScreen.route)
                 }
             )
 
@@ -85,8 +92,7 @@ fun HomeScreen(navController: NavController) {
             WhispersSearchBar(
                 modifier = Modifier.weight(1f),
                 onSearch = {book ->
-                    //TODO: Search the book
-
+                    homeViewModel.searchBooks(book)
                 }
             )
 
@@ -119,41 +125,63 @@ fun HomeScreen(navController: NavController) {
                             savedTabColor = Color.LightGray
                             freeTabColor = Color.LightGray
                             paidTabColor = Color.LightGray
-                            //TODO: Open new list
+                            homeViewModel.refresh()
                         }
                         TabButton(textId = stringResource(id = R.string.free_list), freeTabColor) {
                             freeTabColor = Color(0xFFE7B34D)
                             savedTabColor = Color.LightGray
                             newTabColor = Color.LightGray
                             paidTabColor = Color.LightGray
-                            //TODO: Open free list
+
+                            homeViewModel.searchCategoryBooks("search", "free-ebooks")
                         }
                         TabButton(textId = stringResource(id = R.string.paid_list), paidTabColor) {
                             paidTabColor = Color(0xFFE7B34D)
                             savedTabColor = Color.LightGray
                             newTabColor = Color.LightGray
                             freeTabColor = Color.LightGray
-                            //TODO: Open paid list
+
+                            homeViewModel.searchCategoryBooks("search", "paid-ebooks")
                         }
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    LazyColumn(
-                        modifier = Modifier,
-                        state = rememberLazyListState(),
-                        contentPadding = PaddingValues(8.dp),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        content = {
-                            items(items = listOfBooks) { book ->
-                                BookCard(book = book) {title ->
+                    if (!listOfBooks.isNullOrEmpty()) {
 
-                                    //TODO: Go to book details
+                        LazyColumn(
+                            modifier = Modifier,
+                            state = rememberLazyListState(),
+                            contentPadding = PaddingValues(8.dp),
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            content = {
+                                items(items = listOfBooks) { book ->
+                                    BookCard(book = book) {bookId ->
+                                        navController.navigate("${WhispersScreens.BookDetailsScreen.route}/$bookId")
+                                    }
                                 }
-                            }
 
-                    })
+                            })
+
+
+                    } else if (error != null) {
+
+                        ErrorScreen(message = error.message ?: "Something went wrong. Please try again later") {
+                            homeViewModel.refresh()
+                        }
+
+                    } else {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                            .fillMaxSize())
+                        {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+
                 }
 
             }

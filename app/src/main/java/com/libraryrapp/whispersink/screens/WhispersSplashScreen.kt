@@ -45,9 +45,9 @@ fun WhispersSplashScreen(
         delay(3000L)
 
         if (FirebaseUserUtils.isCurrentUserLoggedIn()) {
-            navController.navigate(WhispersScreens.HomeScreen.name)
+            navController.navigate(WhispersScreens.HomeScreen.route)
         } else {
-            navController.navigate(WhispersScreens.LoginScreen.name)
+            navController.navigate(WhispersScreens.LoginScreen.route)
         }
     }
 

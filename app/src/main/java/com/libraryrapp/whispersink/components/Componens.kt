@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,7 +44,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -60,6 +63,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
 import com.libraryrapp.whispersink.R
 import com.libraryrapp.whispersink.model.MyBook
+
+
 
 @Composable
 fun Logo() {
@@ -308,8 +313,6 @@ fun WhispersTopBar(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun WhispersSearchBar(
-    modifier: Modifier = Modifier,
-    hint: String = "Search",
     onSearch: (String) -> Unit = {}
 ) {
     Column {
@@ -346,10 +349,9 @@ fun BookCard(
     modifier: Modifier = Modifier,
     book: MyBook = MyBook(
         title = "The Google story",
-        authors = "David A. Vise, Mark Malseed",
-        notes = null,
+        authors = listOf("David A. Vise, Mark Malseed"),
         photoUrl = "https://books.google.com/books?id=zyTCAlFPjgYC&printsec=frontcover&img=1&zoom=2&edge=curl&source=gbs_api",
-        categories = "Business & Economics / Entrepreneurship",
+        categories = listOf("Business & Economics", "Entrepreneurship"),
         publishedDate = "2005-11-15",
         rating = 3.5,
         description = "Here is the story behind one of the most remarkable Internet successes of our time. Based on scrupulous research and extraordinary access successes of our time. Based on scrupulous research and extraordinary access  to Google, ...",
@@ -358,92 +360,130 @@ fun BookCard(
         finishedReading = null,
         userId = null,
         googleBookId = "zyTCAlFPjgYC"
-        ),
+    ),
     onBookCardClicked: (String) -> Unit = {}
 ) {
-    Card(
-        modifier = modifier
-            .padding(4.dp)
-            .fillMaxWidth()
-            .height(200.dp)
-            .clickable { onBookCardClicked(book.title.toString()) },
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
-    ) {
-            Row(
-                modifier = modifier,
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.Top
-            ) {
-                Image(
-                    modifier = modifier
-                        .weight(0.4f)
-                        .clip(RoundedCornerShape(18.dp))
-                        .shadow(elevation = 1.dp, shape = RoundedCornerShape(18.dp)),
-                    painter = rememberImagePainter(data = book.photoUrl) ,
-                    contentDescription = stringResource(id = R.string.book_cover))
-
-                Column(
-                    modifier = modifier
-                        .padding(8.dp)
-                        .weight(0.6f),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Text(
-                        modifier = modifier
-                        .padding(3.dp),
-                        text = book.title.toString(),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.titleMedium,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2)
-
-                    Text(
-                        modifier = modifier
-                        .padding(3.dp),
-                        text = book.authors.toString(),
-                        color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.titleSmall,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2)
-
-                    Row(
-                        modifier = modifier.padding(top = 5.dp, start = 3.dp, end = 3.dp, bottom = 3.dp),
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            modifier = modifier.size(10.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                            imageVector = Icons.Default.Star,
-                            contentDescription = stringResource(
-                            id = R.string.book_rating
-                        ))
-                        Text(
-                            modifier = modifier
-                                .padding(start = 3.dp),
-                            text = book.rating.toString(),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.bodySmall)
-                    }
-
-                    Text(
-                        modifier = modifier
-                            .padding(top = 12.dp,start = 3.dp, end = 3.dp, bottom = 3.dp),
-                        text = book.description.toString(),
-                        color = MaterialTheme.colorScheme.secondary,
-                        style = MaterialTheme.typography.bodySmall,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 8)
-
-
-                }
-            }
+    
+    val authors = book.authors
+    
+    var authorsString = stringResource(id = R.string.author_not_available)
+    
+    var bookRating = stringResource(id = R.string.rating_not_available)
+        
+    var imageFromUrl = painterResource(id = R.drawable.preview)
+    
+    if (!book.photoUrl.isNullOrEmpty()) {
+        imageFromUrl = rememberImagePainter(data = book.photoUrl)
+    }
+    
+    if (!authors.isNullOrEmpty()) {
+        authorsString = authors.joinToString(separator = " , ")
+    }
+    
+    if (book.rating != null) {
+        bookRating = book.rating.toString()
     }
 
 
+    Card(
+        modifier = modifier
+            .padding(12.dp)
+            .fillMaxWidth()
+            .height(200.dp)
+            .clickable { onBookCardClicked(book.googleBookId.toString()) },
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp)
+    ) {
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.Top
+        ) {
+            Image(
+                modifier = modifier
+                    .fillMaxSize()
+                    .weight(0.4f)
+                    .clip(RoundedCornerShape(18.dp))
+                    .shadow(elevation = 1.dp, shape = RoundedCornerShape(18.dp)),
+                painter = imageFromUrl,
+                contentDescription = stringResource(id = R.string.book_cover),
+                contentScale = ContentScale.Crop
+            )
+
+            Column(
+                modifier = modifier
+                    .padding(8.dp)
+                    .weight(0.6f),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    modifier = modifier
+                        .padding(3.dp),
+                    text = book.title ?: stringResource(id = R.string.title_not_available),
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.titleSmall,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 2
+                )
+
+                Text(
+                    modifier = modifier
+                        .padding(3.dp),
+                    text = authorsString,
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 2
+                )
+
+                Row(
+                    modifier = modifier.padding(
+                        top = 5.dp,
+                        start = 3.dp,
+                        end = 3.dp,
+                        bottom = 3.dp
+                    ),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = modifier.size(10.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                        imageVector = Icons.Default.Star,
+                        contentDescription = stringResource(
+                            id = R.string.book_rating
+                        )
+                    )
+                    Text(
+                        modifier = modifier
+                            .padding(start = 3.dp),
+                        text = bookRating,
+                        color = MaterialTheme.colorScheme.secondary,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
+                Text(
+                    modifier = modifier
+                        .padding(top = 12.dp, start = 3.dp, end = 3.dp, bottom = 3.dp),
+                    text = book.description ?: stringResource(id = R.string.desc_not_available),
+                    color = MaterialTheme.colorScheme.secondary,
+                    style = MaterialTheme.typography.bodySmall,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 8
+                )
 
 
+            }
+        }
+    }
 }
+
+
+
+
+
+
+

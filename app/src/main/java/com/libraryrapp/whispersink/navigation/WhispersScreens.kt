@@ -1,29 +1,13 @@
 package com.libraryrapp.whispersink.navigation
 
-enum class WhispersScreens {
-    WhispersSplashScreen,
-    LoginScreen,
-    CreateAccountScreen,
-    HomeScreen,
-    BookDetailsScreen,
-    SettingsScreen,
-    UpdateScreen,
-    RatingsScreen;
-
-    companion object {
-        fun fromRoute(route: String?): WhispersScreens
-                = when(route?.substringBefore("/")) {
-            WhispersSplashScreen.name -> WhispersSplashScreen
-            LoginScreen.name -> LoginScreen
-            CreateAccountScreen.name -> CreateAccountScreen
-            HomeScreen.name -> HomeScreen
-            BookDetailsScreen.name -> BookDetailsScreen
-            SettingsScreen.name -> SettingsScreen
-            UpdateScreen.name -> UpdateScreen
-            RatingsScreen.name -> RatingsScreen
-            null -> HomeScreen
-            else -> throw IllegalArgumentException("Route $route is not recognized")
-        }
-    }
+enum class WhispersScreens(val route: String) {
+    WhispersSplashScreen("whispers_splash_screen"),
+    LoginScreen("login_screen"),
+    CreateAccountScreen("create_account_screen"),
+    HomeScreen("home_screen"),
+    BookDetailsScreen("book_details_screen"),
+    SettingsScreen("settings_screen"),
+    UpdateScreen("update_screen"),
+    RatingsScreen("ratings_screen");
 
 }

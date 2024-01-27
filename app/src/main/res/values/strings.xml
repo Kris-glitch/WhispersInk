@@ -17,4 +17,13 @@
     <string name="paid_list">Paid</string>
     <string name="book_cover">Book cover image</string>
     <string name="book_rating">Book rating</string>
+    <string name="retry">Retry</string>
+    <string name="title_not_available">Title not available</string>
+    <string name="rating_not_available">Not rated</string>
+    <string name="desc_not_available">No description for this book yet</string>
+    <string name="author_not_available">Unknown author</string>
+    <string name="book_details">Book Details</string>
+    <string name="read">Read</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
 </resources>

@@ -12,7 +12,7 @@ class LoginViewModel : ViewModel() {
     private val _loadingState = MutableStateFlow(LoadingState.IDLE)
     val loadingState: StateFlow<LoadingState> = _loadingState
 
-    fun logIn(email: String, password: String, home: () -> Unit) =
+    fun logIn(email: String, password: String) =
         viewModelScope.launch {
             _loadingState.value = LoadingState.LOADING
             try {
@@ -20,7 +20,6 @@ class LoginViewModel : ViewModel() {
 
                 if (result.isSuccess) {
                     _loadingState.value = LoadingState.SUCCESS
-                    home()
                 } else {
                     _loadingState.value =
                         LoadingState.ERROR.copy(
@@ -32,7 +31,7 @@ class LoginViewModel : ViewModel() {
             }
         }
 
-    fun signUp(email: String,password: String,home: () -> Unit) =
+    fun signUp(email: String,password: String) =
         viewModelScope.launch {
         _loadingState.value = LoadingState.LOADING
         try {
@@ -40,7 +39,6 @@ class LoginViewModel : ViewModel() {
 
             if (result.isSuccess) {
                 _loadingState.value = LoadingState.SUCCESS
-                home()
             } else {
                 _loadingState.value =
                     LoadingState.ERROR.copy(

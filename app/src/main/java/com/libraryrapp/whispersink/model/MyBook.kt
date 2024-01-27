@@ -4,10 +4,9 @@ import com.google.firebase.Timestamp
 
 data class MyBook(
     var title: String? = null,
-    var authors: String? = null,
-    var notes: String? = null,
+    var authors: List<String>? = null,
     var photoUrl: String? = null,
-    var categories: String? = null,
+    var categories: List<String>? = null,
     var publishedDate: String? = null,
     var rating: Double? = null,
     var description: String? = null,

@@ -1,0 +1,15 @@
+<!-- res/layout/rating_bar.xml -->
+<RatingBar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="?android:attr/ratingBarStyleIndicator"
+    android:id="@+id/ratingBar"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:numStars="5"
+    android:stepSize="0.5"
+    android:rating="0"
+    android:progressTint="@color/mustard"
+    android:theme="@style/MyRatingBar"
+    android:layout_margin="0dp"
+    android:padding="0dp"
+    />

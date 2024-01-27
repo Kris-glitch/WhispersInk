@@ -15,10 +15,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,7 +32,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.libraryrapp.whispersink.R
@@ -39,6 +40,7 @@ import com.libraryrapp.whispersink.components.Logo
 import com.libraryrapp.whispersink.components.PasswordTextField
 import com.libraryrapp.whispersink.components.SubmitButton
 import com.libraryrapp.whispersink.navigation.WhispersScreens
+import com.libraryrapp.whispersink.screens.ErrorScreen
 
 @Composable
 fun LoginScreen(
@@ -49,95 +51,107 @@ fun LoginScreen(
     val showLoginForm = rememberSaveable { mutableStateOf(true) }
     val isCreateAccount = rememberSaveable { mutableStateOf(false) }
 
-    Surface(
-        modifier = Modifier
-            .fillMaxSize(),
-        color = MaterialTheme.colorScheme.tertiary
-    ) {
-        Logo()
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                painter = painterResource(R.drawable.login),
-                contentDescription = stringResource(R.string.splash)
-            )
+    val uiState = viewModel.loadingState.collectAsState().value
+
+    when (uiState.status) {
+        LoadingState.Status.LOADING -> Loading()
+        LoadingState.Status.SUCCESS -> navController.navigate(WhispersScreens.HomeScreen.route)
+        LoadingState.Status.ERROR -> ErrorScreen()
+        LoadingState.Status.IDLE -> {
+
             Surface(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp)
+                    .fillMaxSize(),
+                color = MaterialTheme.colorScheme.tertiary
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally)
-                {
-
-                    LoginForm(loading = false, isCreateAccount = isCreateAccount.value) { email, password ->
-                        if (showLoginForm.value) {
-                            viewModel.logIn(email, password) {
-                                navController.navigate(WhispersScreens.HomeScreen.name)
-                            }
-                        } else {
-                            viewModel.signUp(email, password) {
-                                navController.navigate(WhispersScreens.HomeScreen.name)
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(
-                        modifier = Modifier.padding(8.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                Logo()
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        painter = painterResource(R.drawable.login),
+                        contentDescription = stringResource(R.string.splash)
+                    )
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
+                        color = MaterialTheme.colorScheme.surface,
+                        shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp)
                     ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally)
+                        {
 
-                        val text = if (showLoginForm.value) {
-                            stringResource(id = R.string.sign_up)
-
-                        } else {
-                            stringResource(id = R.string.login)
-                        }
-
-                        val user = if (showLoginForm.value) {
-                            stringResource(id = R.string.new_user)
-
-                        } else {
-                            stringResource(id = R.string.existing_user)
-                        }
-
-                        Text(
-                            text = user,
-                            modifier = Modifier.padding(3.dp),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = text,
-                            modifier = Modifier
-                                .clickable {
-                                    showLoginForm.value = !showLoginForm.value
-                                    isCreateAccount.value = !isCreateAccount.value
-
+                            LoginForm(
+                                loading = false,
+                                isCreateAccount = isCreateAccount.value
+                            ) { email, password ->
+                                if (showLoginForm.value) {
+                                    viewModel.logIn(email, password)
+                                } else {
+                                    viewModel.signUp(email, password)
                                 }
-                                .padding(start = 5.dp),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Row(
+                                modifier = Modifier.padding(8.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+
+                                val text = if (showLoginForm.value) {
+                                    stringResource(id = R.string.sign_up)
+
+                                } else {
+                                    stringResource(id = R.string.login)
+                                }
+
+                                val user = if (showLoginForm.value) {
+                                    stringResource(id = R.string.new_user)
+
+                                } else {
+                                    stringResource(id = R.string.existing_user)
+                                }
+
+                                Text(
+                                    text = user,
+                                    modifier = Modifier.padding(3.dp),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = text,
+                                    modifier = Modifier
+                                        .clickable {
+                                            showLoginForm.value = !showLoginForm.value
+                                            isCreateAccount.value = !isCreateAccount.value
+
+                                        }
+                                        .padding(start = 5.dp),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
+
+
+                        }
+
                     }
-
-
                 }
-
             }
+
         }
+
+
     }
 }
 
@@ -190,7 +204,9 @@ fun LoginForm(
             emailState = email,
             enabled = !loading,
             onAction = KeyboardActions {
-                passwordFocusRequest.requestFocus()
+                if (passwordFocusRequest != FocusRequester.Cancel) {
+                    passwordFocusRequest.requestFocus()
+                }
 
             },
         )
@@ -223,6 +239,16 @@ fun LoginForm(
         }
 
 
+    }
+}
+
+@Composable
+fun Loading() {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+        CircularProgressIndicator()
     }
 }
 
