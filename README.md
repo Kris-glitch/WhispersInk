@@ -28,7 +28,7 @@ By employing Coroutines, Kotlin Flows, and Mutable State, WhispersInk achieves a
 
 ---- Illustrations for UI used ----
 
-[Cátia Abreu weather app design on Behance.](https://www.behance.net/gallery/95487241/Audiobook-Service-Reader-App-Design-Web-Design?tracking_source=search_projects|reading+app&l=6&)https://www.behance.net/gallery/95487241/Audiobook-Service-Reader-App-Design-Web-Design?tracking_source=search_projects|reading+app&l=6&
+(https://www.behance.net/gallery/95487241/Audiobook-Service-Reader-App-Design-Web-Design?tracking_source=search_projects|reading+app&l=6&)https://www.behance.net/gallery/95487241/Audiobook-Service-Reader-App-Design-Web-Design?tracking_source=search_projects|reading+app&l=6&
 
 ![login](https://github.com/Kris-glitch/WhispersInk/assets/78586563/7d24ca07-4261-4122-9dcb-f72e0ae400ea)
 ![signup](https://github.com/Kris-glitch/WhispersInk/assets/78586563/b574d72b-7ca8-40b6-ba2b-4837162dbaef)
